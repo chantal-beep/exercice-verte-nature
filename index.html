@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cas concret interactif — Entreprise Verte Nature</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+      color: #0f172a;
+    }
+    h1 {
+      font-size: 20px;
+      color: #1f4e79;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      max-width: 800px;
+      margin: auto;
+    }
+    ol li {
+      margin-bottom: 20px;
+    }
+    .dropzone {
+      border: 2px dashed #94a3b8;
+      border-radius: 8px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f5f9;
+      margin-top: 8px;
+      padding: 6px;
+      font-size: 14px;
+      color: #475569;
+    }
+    .bank {
+      margin-top: 20px;
+    }
+    .draggable {
+      display: inline-block;
+      background: #1f4e79;
+      color: white;
+      padding: 8px 14px;
+      margin: 6px;
+      border-radius: 6px;
+      cursor: grab;
+      user-select: none;
+    }
+    .draggable.dragging {
+      opacity: 0.5;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-check {
+      background: #2563eb;
+      color: white;
+    }
+    .btn-reset {
+      background: #e2e8f0;
+      margin-left: 8px;
+    }
+    .correct {
+      background: #bbf7d0 !important;
+      border-color: #22c55e !important;
+    }
+    .incorrect {
+      background: #fecaca !important;
+      border-color: #ef4444 !important;
+    }
+    #feedback {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+    @media(max-width:600px){
+      .draggable {
+        display:block;
+        width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Cas concret interactif — Entreprise « Verte Nature »</h1>
+    <p>
+      Vous travaillez à l’accueil de <strong>Verte Nature</strong>, une entreprise qui vend des produits bio. 
+      Orientez les visiteurs vers le bon service en glissant-déposant la vignette correspondante.
+    </p>
+
+    <ol>
+      <li>
+        Un fournisseur vient réclamer le paiement de sa facture.
+        <div class="dropzone" data-answer="Comptabilité / Finance"></div>
+      </li>
+      <li>
+        Une candidate se présente pour signer son contrat de travail.
+        <div class="dropzone" data-answer="Ressources Humaines"></div>
+      </li>
+      <li>
+        Un client demande un devis pour une grande commande de fruits bio.
+        <div class="dropzone" data-answer="Commercial"></div>
+      </li>
+      <li>
+        Un salarié signale un problème sur sa paie.
+        <div class="dropzone" data-answer="Ressources Humaines"></div>
+      </li>
+      <li>
+        Un client se plaint d’un retard de livraison et veut une solution.
+        <div class="dropzone" data-answer="Opérations / Logistique"></div>
+      </li>
+    </ol>
+
+    <h3>Pioche de services :</h3>
+    <div class="bank">
+      <div class="draggable" draggable="true">Comptabilité / Finance</div>
+      <div class="draggable" draggable="true">Ressources Humaines</div>
+      <div class="draggable" draggable="true">Commercial</div>
+      <div class="draggable" draggable="true">Opérations / Logistique</div>
+    </div>
+
+    <button class="btn-check" onclick="checkAnswers()">Vérifier mes réponses</button>
+    <button class="btn-reset" onclick="resetExercise()">Réinitialiser</button>
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    const draggables = document.querySelectorAll(".draggable");
+    const dropzones = document.querySelectorAll(".dropzone");
+    let dragged = null;
+
+    draggables.forEach(d => {
+      d.addEventListener("dragstart", () => {
+        dragged = d;
+        setTimeout(() => d.classList.add("dragging"), 0);
+      });
+      d.addEventListener("dragend", () => {
+        dragged.classList.remove("dragging");
+        dragged = null;
+      });
+    });
+
+    dropzones.forEach(zone => {
+      zone.addEventListener("dragover", e => {
+        e.preventDefault();
+      });
+      zone.addEventListener("drop", () => {
+        if (dragged) {
+          zone.innerHTML = "";
+          zone.appendChild(dragged);
+        }
+      });
+    });
+
+    function checkAnswers() {
+      let correct = 0;
+      dropzones.forEach(zone => {
+        if (zone.firstChild) {
+          const value = zone.firstChild.textContent.trim();
+          if (value === zone.dataset.answer) {
+            zone.classList.add("correct");
+            zone.classList.remove("incorrect");
+            correct++;
+          } else {
+            zone.classList.add("incorrect");
+            zone.classList.remove("correct");
+          }
+        }
+      });
+      document.getElementById("feedback").innerText =
+        correct === dropzones.length
+          ? "✅ Bravo, toutes vos réponses sont correctes !"
+          : "❌ Certaines réponses sont incorrectes, réessayez.";
+    }
+
+    function resetExercise() {
+      dropzones.forEach(zone => {
+        zone.innerHTML = "";
+        zone.classList.remove("correct", "incorrect");
+      });
+      document.getElementById("feedback").innerText = "";
+      const bank = document.querySelector(".bank");
+      draggables.forEach(d => bank.appendChild(d));
+    }
+  </script>
+</body>
+</html>
